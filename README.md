@@ -15,6 +15,7 @@ Wiki: https://bitbucket.org/davidzheng1022/token-gen/wiki
 * Multiple different token support, smart identifier
 ------------------------------------
 * property placeholder support(Not yet)
+* dynamic json response key(Not yet)
 
 
 # Quick Start
