@@ -14,13 +14,13 @@ Wiki: https://bitbucket.org/davidzheng1022/token-gen/wiki
 * No more access token generated if the existing token has not been expired
 * Multiple different token support, smart identifier
 ------------------------------------
-* property placeholder support
+* property placeholder support(Not yet)
 
 
 # Quick Start
-1. Download the code and run 'mvn install'
+* Download the code and run 'mvn install'
 
-2. In your project, add the dependency to your project pom file
+* In your project, add the dependency to your project pom file
 ```
     <dependency>
 	<groupId>com.pactera.adm</groupId>
@@ -28,11 +28,11 @@ Wiki: https://bitbucket.org/davidzheng1022/token-gen/wiki
 	<version>1.0</version>
     </dependency>
 ```
-3. Help Spring to find it:
+* Help Spring to find it:
    in spring-boot project, add @ComponentScan({"com.pactera.adm"})
    in other spring project, <context:component-scan base-package="com.pactera.adm" />
 
-4. config the annotation before any API call
+* config the annotation before any API call
 ```
    @Autowired
    private TokenGen tokenGen;
