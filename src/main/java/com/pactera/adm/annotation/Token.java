@@ -21,6 +21,8 @@ public @interface Token
 	Header[] headers() default {};
 
 	Param[] params() default {};
+
+	String[] respKeys() default {"access_token", "expires_in", "scope", "token_type"};
 }
 
 

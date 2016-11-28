@@ -2,6 +2,7 @@ package com.pactera.adm.aspect;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pactera.adm.TokenGen;
 import com.pactera.adm.annotation.Header;
 import com.pactera.adm.annotation.Param;
 import com.pactera.adm.annotation.Token;
@@ -32,7 +33,10 @@ import org.springframework.util.DigestUtils;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,14 +70,16 @@ public class TokenGenAspect implements ApplicationContextAware
 		if (!tokenExpireTimer.getDelayQueue().contains(tokenDelay))
 		{
 			tokenDelay =
-					generateAccessToken(key, tokenGen.endPoint(), tokenGen.headers(), tokenGen.params());
+					generateAccessToken(key, tokenGen.endPoint(), tokenGen.headers(), tokenGen.params(),
+							tokenGen.respKeys());
 			tokenExpireTimer.schedule(tokenDelay);
 		}
 
 		tokenExpireTimer.addIdentity(key);
 	}
 
-	private TokenDelay generateAccessToken(String key, String endPoint, Header[] headers, Param[] params)
+	private TokenDelay generateAccessToken(String key, String endPoint, Header[] headers, Param[] params,
+			String[] respKeys)
 			throws Exception
 	{
 		URI baseUri = new URI(findProp(endPoint));
@@ -116,10 +122,18 @@ public class TokenGenAspect implements ApplicationContextAware
 			String content = EntityUtils.toString(httpResponse.getEntity());
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode root = objectMapper.readTree(content);
-			String accessToken = root.get("access_token").asText();
-			int expires = root.get("expires_in").asInt();
 
-			return new TokenDelay(key, accessToken, expires);
+			TokenDelay tokenDelay = new TokenDelay(key, Long.valueOf(root.get(TokenGen.EXPIRES_IN).asText("300")));
+			tokenDelay.preDefRespKeys().addAll(Arrays.asList(respKeys));
+
+			Map map = new HashMap();
+			for (String respKey : tokenDelay.preDefRespKeys())
+			{
+				map.put(respKey, root.get(respKey) == null ? "" : root.get(respKey).textValue());
+			}
+			tokenDelay.setHashMap(map);
+
+			return tokenDelay;
 		}
 		else
 		{

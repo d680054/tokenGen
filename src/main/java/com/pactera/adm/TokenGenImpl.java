@@ -16,7 +16,7 @@ public class TokenGenImpl implements TokenGen
 	@Autowired
 	private TokenExpireTimer tokenExpireTimer;
 
-	public String getToken()
+	public String getRespValue(String key)
 	{
 		String identity = tokenExpireTimer.getIdentity();
 		Iterator<TokenDelay> it = tokenExpireTimer.getDelayQueue().iterator();
@@ -25,7 +25,7 @@ public class TokenGenImpl implements TokenGen
 			TokenDelay tokenDelay = it.next();
 			if (tokenDelay.getKey().equals(identity))
 			{
-				return tokenDelay.getToken();
+				return tokenDelay.getValue(key);
 			}
 		}
 

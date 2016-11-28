@@ -12,10 +12,9 @@ Wiki: https://bitbucket.org/davidzheng1022/token-gen/wiki
 
 * Annotation based, less code
 * No more access token generated if the existing token has not been expired
-* Multiple different token support, smart identifier
-------------------------------------
-* property placeholder support(Not yet)
-* dynamic json response key(Not yet)
+* Multiple different token support, smart identification
+* property placeholder support
+* customised json response key
 
 
 # Quick Start
