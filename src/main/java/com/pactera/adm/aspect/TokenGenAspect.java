@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pactera.adm.annotation.Header;
 import com.pactera.adm.annotation.Param;
-import com.pactera.adm.annotation.TokenGen;
+import com.pactera.adm.annotation.Token;
 import com.pactera.adm.timer.TokenDelay;
 import com.pactera.adm.timer.TokenExpireTimer;
 import org.apache.http.HttpResponse;
@@ -22,7 +22,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 
@@ -30,20 +33,24 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by David.Zheng on 23/11/2016.
  */
 @Aspect
 @Component
-public class TokenGenAspect
+public class TokenGenAspect implements ApplicationContextAware
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TokenGenAspect.class);
+
+	private ApplicationContext ctx;
 
 	@Autowired
 	private TokenExpireTimer tokenExpireTimer;
 
-	@Pointcut("@annotation(com.pactera.adm.annotation.TokenGen)")
+	@Pointcut("@annotation(com.pactera.adm.annotation.Token)")
 	public void annotationPointCut()
 	{
 	}
@@ -53,7 +60,7 @@ public class TokenGenAspect
 	{
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 		Method method = signature.getMethod();
-		TokenGen tokenGen = method.getAnnotation(TokenGen.class);
+		Token tokenGen = method.getAnnotation(Token.class);
 		String key = DigestUtils.md5DigestAsHex(tokenGen.toString().getBytes());
 		TokenDelay tokenDelay = new TokenDelay(key);
 		if (!tokenExpireTimer.getDelayQueue().contains(tokenDelay))
@@ -69,7 +76,7 @@ public class TokenGenAspect
 	private TokenDelay generateAccessToken(String key, String endPoint, Header[] headers, Param[] params)
 			throws Exception
 	{
-		URI baseUri = new URI(endPoint);
+		URI baseUri = new URI(findProp(endPoint));
 		URIBuilder uriBuilder = new URIBuilder()
 				.setHost(baseUri.getHost())
 				.setScheme(baseUri.getScheme())
@@ -80,7 +87,11 @@ public class TokenGenAspect
 		if (headers != null)
 		{
 			for (Header header : headers)
-				request.addHeader(header.name(), header.value());
+			{
+				String name = findProp(header.name());
+				String value = findProp(header.value());
+				request.addHeader(name, value);
+			}
 		}
 
 		if (params != null)
@@ -88,7 +99,9 @@ public class TokenGenAspect
 			List postParameters = new ArrayList<NameValuePair>();
 			for (Param param : params)
 			{
-				postParameters.add(new BasicNameValuePair(param.name(), param.value()));
+				String name = findProp(param.name());
+				String value = findProp(param.value());
+				postParameters.add(new BasicNameValuePair(name, value));
 			}
 			request.bodyForm(postParameters);
 		}
@@ -115,4 +128,26 @@ public class TokenGenAspect
 
 	}
 
+	private String findProp(String placeHolder)
+	{
+		String prop = placeHolder;
+		if (prop.matches("^\\$\\{.+\\}$"))
+		{
+			Pattern pattern = Pattern.compile("[^${].+[^}]", Pattern.DOTALL);
+			Matcher matcher = pattern.matcher(placeHolder);
+			while (matcher.find())
+			{
+				prop = matcher.group(0);
+			}
+
+			prop = ctx.getEnvironment().getProperty(prop);
+		}
+
+		return prop;
+	}
+
+	@Override public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+	{
+		this.ctx = applicationContext;
+	}
 }
