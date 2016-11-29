@@ -37,8 +37,7 @@ Wiki: https://bitbucket.org/davidzheng1022/token-gen/wiki
 
 #Example
 
-* example 1: Put the annotation @Token above the API method.
-             It supports the placeholder, you can put the value in the property file.
+*** example 1:**Put the annotation @Token above the API method. It supports the placeholder, you can put the value in the property file.
 ```
    @Autowired
    private TokenGen tokenGen;
@@ -55,7 +54,7 @@ Wiki: https://bitbucket.org/davidzheng1022/token-gen/wiki
    }
 ```
 
-* example 2: If you have more than one API method, put the annotation @Token above the class,
+*** example 2:** If you have more than one API method, put the annotation @Token above the class,
              put the indicator @TokenRef above the method
 ```
 @Service
@@ -85,7 +84,7 @@ public class TestServiceImpl implements TestService {
 
 ```
 
-*example 3: The @Token above the method will override the @Token above the class,
+*** example 3:** The @Token above the method will override the @Token above the class,
             the getUserNameAPI and getUserUsageAPI will use gateway1 to send the message,
             the getUserSubscriptionAPI will use different config
 ```
@@ -127,10 +126,12 @@ public class TestServiceImpl implements TestService {
 }
 ```
 
-* example 4: Different system will reply different json format,
-             e.g. Facebook Token Response: {"access_token":"...", "expires_in":..., "machine_id":"..."}
-                  Twitter: {"token_type":"bearer","access_token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%2FAAAAAAAAAAAAAAAAAAAA%3DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
-             TokenGen already pre-defined three values: access_token, expires_in, token_type.
+*** example 4:** Different system will reply different json format,
+
+* Facebook: {"access_token":"...", "expires_in":..., "machine_id":"..."}                  
+* Twitter: {"token_type":"bearer","access_token":"AAAAAAAAAAAAAAAAAAAAAAAAA%3DAAAAAAAAAAAAAAA"}
+             
+TokenGen already pre-defined three values: access_token, expires_in, token_type.
              You can define your own response keys(multiple keys support), see example below
 
 ```
