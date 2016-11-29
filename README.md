@@ -32,18 +32,125 @@ Wiki: https://bitbucket.org/davidzheng1022/token-gen/wiki
    in spring-boot project, add @ComponentScan({"com.pactera.adm"})
    in other spring project, <context:component-scan base-package="com.pactera.adm" />
 
-* config the annotation before any API call
+*  config the annotation before any API call, see examples:
+
+
+#Example
+
+* example 1: Put the annotation @Token above the API method.
+             It supports the placeholder, you can put the value in the property file.
 ```
    @Autowired
    private TokenGen tokenGen;
 
-   @TokenGen(endPoint = "https://api.telstra.com/v1/oauth/token", params = {
-			@Param(name = "client_id", value = "7HucPuzGLtXSEjOE1b0RAx3zKNnQiUHZ"),
+   @Token(endPoint = "${telstra.sms.api.gateway}", params = {
+			@Param(name = "client_id", value = "${spring.tokenGen.client}"),
 			@Param(name = "client_secret", value = "fCkXFVEmEK2Qbexg"),
 			@Param(name = "scope", value = "SMS"),
 			@Param(name = "grant_type", value = "client_credentials") })
    public void getUserNameAPI(){
-      String access_token = tokenGen.getToken();
+      ....
+      String accessToken = tokenGen.getRespValue(TokenGen.ACCESS_TOKEN);
       ....
    }
+```
+
+* example 2: If you have more than one API method, put the annotation @Token above the class,
+             put the indicator @TokenRef above the method
+```
+@Service
+@Token(endPoint = "${telstra.sms.api.gateway}", params = {
+			@Param(name = "client_id", value = "${spring.tokenGen.client}"),
+			@Param(name = "client_secret", value = "fCkXFVEmEK2Qbexg"),
+			@Param(name = "scope", value = "SMS"),
+			@Param(name = "grant_type", value = "client_credentials") })
+public class TestServiceImpl implements TestService {
+   @Autowired
+   private TokenGen tokenGen;
+
+   @TokenRef
+   public void getUserNameAPI() {
+       ....
+       String accessToken = tokenGen.getRespValue(TokenGen.ACCESS_TOKEN);
+       ....
+   }
+
+   @TokenRef
+   public void getUserUsageAPI() {
+      ....
+      String accessToken = tokenGen.getRespValue(TokenGen.ACCESS_TOKEN);
+      ....
+   }
+}
+
+```
+
+*example 3: The @Token above the method will override the @Token above the class,
+            the getUserNameAPI and getUserUsageAPI will use gateway1 to send the message,
+            the getUserSubscriptionAPI will use different config
+```
+@Service
+@Token(endPoint = "${telstra.sms.api.gateway1}", params = {
+			@Param(name = "client_id", value = "${spring.tokenGen.client}"),
+			@Param(name = "client_secret", value = "fCkXFVEmEK2Qbexg"),
+			@Param(name = "scope", value = "SMS"),
+			@Param(name = "grant_type", value = "client_credentials") })
+public class TestServiceImpl implements TestService {
+   @Autowired
+   private TokenGen tokenGen;
+
+   @TokenRef
+   public void getUserNameAPI() {
+       ....
+       String accessToken = tokenGen.getRespValue(TokenGen.ACCESS_TOKEN);
+       ....
+   }
+
+   @TokenRef
+   public void getUserUsageAPI() {
+      ....
+      String accessToken = tokenGen.getRespValue(TokenGen.ACCESS_TOKEN);
+      ....
+   }
+
+
+   @Token(endPoint = "${telstra.sms.api.gateway2}", params = {
+      			@Param(name = "client_id", value = "${spring.tokenGen.client}"),
+      			@Param(name = "client_secret", value = "fCkXFVEmEK2Qbexg"),
+      			@Param(name = "scope", value = "SMS"),
+      			@Param(name = "grant_type", value = "client_credentials") })
+   public void getUserSubscriptionAPI() {
+       ....
+       String accessToken = tokenGen.getRespValue(TokenGen.ACCESS_TOKEN);
+       ....
+   }
+}
+```
+
+* example 4: Different system will reply different json format,
+             e.g. Facebook Token Response: {"access_token":"...", "expires_in":..., "machine_id":"..."}
+                  Twitter: {"token_type":"bearer","access_token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%2FAAAAAAAAAAAAAAAAAAAA%3DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
+             TokenGen already pre-defined three values: access_token, expires_in, token_type.
+             You can define your own response keys(multiple keys support), see example below
+
+```
+   @Autowired
+   private TokenGen tokenGen;
+
+   @Token(endPoint = "${telstra.sms.api.gateway}", params = {
+			@Param(name = "client_id", value = "${spring.tokenGen.client}"),
+			@Param(name = "client_secret", value = "fCkXFVEmEK2Qbexg"),
+			@Param(name = "scope", value = "SMS"),
+			@Param(name = "grant_type", value = "client_credentials") }, respKeys = {"machine_id"})
+   public void getUserNameAPI(){
+      ....
+      String accessToken = tokenGen.getRespValue(TokenGen.ACCESS_TOKEN);
+      String machineId = tokenGen.getRespValue("machine_id");
+      ....
+   }
+```
+
+#Any issue or questions
+```
+Email: david.zheng@pactera.com
 ```

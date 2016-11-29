@@ -6,6 +6,7 @@ import com.pactera.adm.TokenGen;
 import com.pactera.adm.annotation.Header;
 import com.pactera.adm.annotation.Param;
 import com.pactera.adm.annotation.Token;
+import com.pactera.adm.annotation.TokenRef;
 import com.pactera.adm.timer.TokenDelay;
 import com.pactera.adm.timer.TokenExpireTimer;
 import org.apache.http.HttpResponse;
@@ -55,23 +56,35 @@ public class TokenGenAspect implements ApplicationContextAware
 	private TokenExpireTimer tokenExpireTimer;
 
 	@Pointcut("@annotation(com.pactera.adm.annotation.Token)")
-	public void annotationPointCut()
+	public void annotationPointCut1()
 	{
 	}
 
-	@Before("annotationPointCut()")
+	@Pointcut("@annotation(com.pactera.adm.annotation.TokenRef)")
+	public void annotationPointCut2()
+	{
+
+	}
+
+	@Before("annotationPointCut1() || annotationPointCut2()")
 	public void before(JoinPoint joinPoint) throws Exception
 	{
+		Token token = joinPoint.getTarget().getClass().getAnnotation(Token.class);
+
 		MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 		Method method = signature.getMethod();
-		Token tokenGen = method.getAnnotation(Token.class);
-		String key = DigestUtils.md5DigestAsHex(tokenGen.toString().getBytes());
+		if (method.getAnnotation(TokenRef.class) == null)
+		{
+			token = method.getAnnotation(Token.class);
+		}
+
+		String key = DigestUtils.md5DigestAsHex(token.toString().getBytes());
 		TokenDelay tokenDelay = new TokenDelay(key);
 		if (!tokenExpireTimer.getDelayQueue().contains(tokenDelay))
 		{
 			tokenDelay =
-					generateAccessToken(key, tokenGen.endPoint(), tokenGen.headers(), tokenGen.params(),
-							tokenGen.respKeys());
+					generateAccessToken(key, token.endPoint(), token.headers(), token.params(),
+							token.respKeys());
 			tokenExpireTimer.schedule(tokenDelay);
 		}
 
