@@ -4,8 +4,7 @@ This is a byproduct when I develop the log-watch project. This project helps you
 
 # Project Clone：
 ```
-Source: git clone https://davidzheng1022@bitbucket.org/davidzheng1022/token-gen.git
-Wiki: https://bitbucket.org/davidzheng1022/token-gen/wiki
+Source: git clone https://github.com/d680054/tokenGen.git
 ```
 
 # Features
