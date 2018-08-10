@@ -1,4 +1,4 @@
-package com.pactera.adm.annotation;
+package com.hj.token.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -12,11 +12,19 @@ import java.lang.annotation.Target;
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD })
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
-public @interface Param
+public @interface Token
 {
-	String name();
+	String endPoint();
 
-	String value();
+	Header[] headers() default {};
+
+	Param[] params() default {};
+
+	String[] respKeys() default {"access_token", "expires_in", "scope", "token_type"};
 }
+
+
+
+

@@ -1,4 +1,4 @@
-package com.pactera.adm.timer;
+package com.hj.token.timer;
 
 import java.util.concurrent.DelayQueue;
 

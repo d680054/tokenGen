@@ -1,20 +1,22 @@
-package com.pactera.adm.aspect;
+package com.hj.token.aspect;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pactera.adm.TokenGen;
-import com.pactera.adm.annotation.Header;
-import com.pactera.adm.annotation.Param;
-import com.pactera.adm.annotation.Token;
-import com.pactera.adm.annotation.TokenRef;
-import com.pactera.adm.timer.TokenDelay;
-import com.pactera.adm.timer.TokenExpireTimer;
-import org.apache.http.HttpResponse;
+import com.hj.token.TokenGen;
+import com.hj.token.annotation.Header;
+import com.hj.token.annotation.Param;
+import com.hj.token.annotation.Token;
+import com.hj.token.annotation.TokenRef;
+import com.hj.token.timer.TokenDelay;
+import com.hj.token.timer.TokenExpireTimer;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.aspectj.lang.JoinPoint;
@@ -55,12 +57,12 @@ public class TokenGenAspect implements ApplicationContextAware
 	@Autowired
 	private TokenExpireTimer tokenExpireTimer;
 
-	@Pointcut("@annotation(com.pactera.adm.annotation.Token)")
+	@Pointcut("@annotation(com.hj.token.annotation.Token)")
 	public void annotationPointCut1()
 	{
 	}
 
-	@Pointcut("@annotation(com.pactera.adm.annotation.TokenRef)")
+	@Pointcut("@annotation(com.hj.token.annotation.TokenRef)")
 	public void annotationPointCut2()
 	{
 
@@ -101,7 +103,8 @@ public class TokenGenAspect implements ApplicationContextAware
 				.setScheme(baseUri.getScheme())
 				.setPath(baseUri.getPath());
 
-		Request request = Request.Post(uriBuilder.build());
+		CloseableHttpClient client = HttpClients.createDefault();
+		HttpPost request = new HttpPost(uriBuilder.build());
 
 		if (headers != null)
 		{
@@ -115,24 +118,25 @@ public class TokenGenAspect implements ApplicationContextAware
 
 		if (params != null)
 		{
-			List postParameters = new ArrayList<NameValuePair>();
+			List<NameValuePair> postParameters = new ArrayList<NameValuePair>();
 			for (Param param : params)
 			{
 				String name = findProp(param.name());
 				String value = findProp(param.value());
 				postParameters.add(new BasicNameValuePair(name, value));
 			}
-			request.bodyForm(postParameters);
+			UrlEncodedFormEntity entity = new UrlEncodedFormEntity(postParameters);
+			request.setEntity(entity);
 		}
 
-		Response response = request.execute();
+		CloseableHttpResponse response = client.execute(request);
 
-		HttpResponse httpResponse = response.returnResponse();
-		int statusCode = httpResponse.getStatusLine().getStatusCode();
+
+		int statusCode = response.getStatusLine().getStatusCode();
 
 		if (statusCode == HttpStatus.SC_OK)
 		{
-			String content = EntityUtils.toString(httpResponse.getEntity());
+			String content = EntityUtils.toString(response.getEntity());
 			ObjectMapper objectMapper = new ObjectMapper();
 			JsonNode root = objectMapper.readTree(content);
 

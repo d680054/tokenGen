@@ -23,14 +23,14 @@ Wiki: https://bitbucket.org/davidzheng1022/token-gen/wiki
 * In your project, add the dependency to your project pom file
 ```
     <dependency>
-	<groupId>com.pactera.adm</groupId>
+	<groupId>com.hj.token</groupId>
 	<artifactId>token-gen</artifactId>
 	<version>1.0</version>
     </dependency>
 ```
 * Help Spring to find it:
-   in spring-boot project, add @ComponentScan({"com.pactera.adm"})
-   in other spring project, <context:component-scan base-package="com.pactera.adm" />
+   in spring-boot project, add @ComponentScan({"com.hj.token"})
+   in other spring project, <context:component-scan base-package="com.hj.token" />
 
 *  config the annotation before any API call, see examples:
 
@@ -153,5 +153,5 @@ TokenGen already pre-defined three values: access_token, expires_in, token_type.
 
 #Any issue or questions
 ```
-Email: david.zheng@pactera.com
+Email: davidzheng1022@gmail.com
 ```

@@ -1,4 +1,4 @@
-package com.pactera.adm;
+package com.hj.token;
 
 /**
  * Created by David.Zheng on 25/11/2016.

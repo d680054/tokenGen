@@ -1,4 +1,4 @@
-package com.pactera.adm.annotation;
+package com.hj.token.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

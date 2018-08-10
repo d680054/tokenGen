@@ -1,6 +1,6 @@
-package com.pactera.adm.timer;
+package com.hj.token.timer;
 
-import com.pactera.adm.TokenGen;
+import com.hj.token.TokenGen;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;

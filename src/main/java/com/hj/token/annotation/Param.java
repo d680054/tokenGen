@@ -1,4 +1,4 @@
-package com.pactera.adm.annotation;
+package com.hj.token.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -8,12 +8,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by David.Zheng on 29/11/2016.
+ * Created by David.Zheng on 23/11/2016.
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD })
+@Target({ ElementType.METHOD })
 @Documented
-public @interface TokenRef
+public @interface Param
 {
+	String name();
+
+	String value();
 }

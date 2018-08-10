@@ -1,7 +1,7 @@
-package com.pactera.adm;
+package com.hj.token;
 
-import com.pactera.adm.timer.TokenDelay;
-import com.pactera.adm.timer.TokenExpireTimer;
+import com.hj.token.timer.TokenDelay;
+import com.hj.token.timer.TokenExpireTimer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
